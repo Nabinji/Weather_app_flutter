@@ -239,8 +239,7 @@ class _HomeScreenState extends State<Homepage> {
       return Text(
         message,
         textAlign: TextAlign.center,
-        
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.red,
@@ -297,7 +296,6 @@ class _HomeScreenState extends State<Homepage> {
               ),
             ),
           ),
-          // const SizedBox(height: 25),
           Text(
             "${response!.current?.tempC.toString() ?? ""} °c",
             style: const TextStyle(

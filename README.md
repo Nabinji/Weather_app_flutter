@@ -1,14 +1,12 @@
 # weather_app
 
-A new Flutter project.
+This is a simple weather app built with Flutter. It shows the current weather information for a location. Users can search for a location and get its weather details.
 
-## Getting Started
+## Screenshot
 
-This project is a starting point for a Flutter application.
+<div align=center> <img src = 'assets/help_screen.png' width = '200' >  <img src = 'assets/home_page.png' width = '200' >  <img src = 'assets/home_page2.png' width = '300' >
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Lab: Api ling](https://www.weatherapi.com/)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
 For help getting started with Flutter development, view the
