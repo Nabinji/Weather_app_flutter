@@ -74,7 +74,6 @@ class _HomeScreenState extends State<Homepage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          const SizedBox(height: 50),
           // for top bar
           topBar(context),
           Expanded(
@@ -119,10 +118,10 @@ class _HomeScreenState extends State<Homepage> {
                       child: ListView(
                         children: [
                           SizedBox(
-                            height: size.height * 0.22,
+                            height: size.height * 0.25,
                           ),
                           buildSearch(),
-                          const SizedBox(height: 70),
+                          const SizedBox(height: 40),
                           if (inProgress)
                             const Center(child: CircularProgressIndicator())
                           else
@@ -140,47 +139,49 @@ class _HomeScreenState extends State<Homepage> {
     );
   }
 
-  Padding topBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HelpScreen(),
+  SafeArea topBar(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HelpScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.blue[200],
+                    borderRadius: BorderRadius.circular(9)),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.black,
+                  ),
                 ),
-              );
-            },
-            child: Container(
+              ),
+            ),
+            const Spacer(),
+            Container(
               decoration: BoxDecoration(
                   color: Colors.blue[200],
                   borderRadius: BorderRadius.circular(9)),
               child: const Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Icon(
-                  Icons.arrow_back_ios,
+                  Icons.menu,
                   color: Colors.black,
                 ),
               ),
-            ),
-          ),
-          const Spacer(),
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.blue[200],
-                borderRadius: BorderRadius.circular(9)),
-            child: const Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Icon(
-                Icons.menu,
-                color: Colors.black,
-              ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

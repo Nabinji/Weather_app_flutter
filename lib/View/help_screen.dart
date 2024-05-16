@@ -33,8 +33,8 @@ class _HelpScreenState extends State<HelpScreen> {
           Padding(
             padding: EdgeInsets.only(
                 right: 7,
-                top: MediaQuery.of(context).padding.top+10,
-                bottom: MediaQuery.of(context).padding.bottom+10),
+                top: MediaQuery.of(context).padding.top + 10,
+                bottom: MediaQuery.of(context).padding.bottom + 10),
             child: Image.asset(
               'assets/images/frame.png',
               fit: BoxFit.fill,
