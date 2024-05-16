@@ -5,6 +5,7 @@ This is a simple weather app built with Flutter. It shows the current weather in
 ## Screenshot
 
 <div align=center> help screen <img src = 'assets/help_screen.png' width = '300' > <br>  home page screen <img src = 'assets/home_page.png' width = '300' > <br> home page screen <img src = 'assets/home_page2.png' width = '300' >
+</div>
 
 ### App Description:
 
