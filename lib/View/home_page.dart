@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/View/help_screen.dart';
 import '../Model/weather_model.dart';
 import '../Services/api_services.dart';
 import 'package:geolocator/geolocator.dart';
+
+import '../main.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -19,22 +21,14 @@ class _HomeScreenState extends State<Homepage> {
   String locationName = '';
   bool isLocationEmpty = true;
 
-  late SharedPreferences _prefs;
   late TextEditingController _textEditingController;
 
   @override
   void initState() {
     super.initState();
-    _initPrefs();
-    _getWeatherData('');
-  }
-
-  _initPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      locationName = _prefs.getString('locationName') ?? '';
-      _textEditingController = TextEditingController(text: locationName);
-    });
+    locationName = sharedPrefs.getString('locationName') ?? '';
+    _textEditingController = TextEditingController(text: locationName);
+    _getWeatherData(locationName);
   }
 
   _getWeatherData(String location) async {
@@ -52,7 +46,7 @@ class _HomeScreenState extends State<Homepage> {
       }
     } catch (e) {
       setState(() {
-        message = "Failed to get weather info for $location";
+        message = "Failed to get weather info for \n$location";
         response = null;
       });
     } finally {
@@ -63,7 +57,7 @@ class _HomeScreenState extends State<Homepage> {
   }
 
   _saveLocation(String location) {
-    _prefs.setString('locationName', location);
+    sharedPrefs.setString('locationName', location);
   }
 
   @override
@@ -74,58 +68,148 @@ class _HomeScreenState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.blue[100],
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HelpScreen()));
-                },
-                child: const Icon(Icons.arrow_back_ios),
-              ),
-              buildSearch(),
-              const SizedBox(height: 20),
-              if (inProgress)
-                const Center(child: CircularProgressIndicator())
-              else
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: buildWeatherData(),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          const SizedBox(height: 50),
+          // for top bar
+          topBar(context),
+          Expanded(
+            child: Stack(
+              children: [
+                // for button blue container
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                      ),
+                    ),
+                    height: size.height / 2.2,
                   ),
                 ),
-            ],
+                // for weathe data container
+                Positioned(
+                  bottom: 100,
+                  right: 30,
+                  left: 30,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white,
+                            Colors.white,
+                            Colors.white,
+                            Color.fromARGB(255, 133, 208, 243),
+                          ]),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    height: size.height,
+                    child: Center(
+                      child: ListView(
+                        children: [
+                          SizedBox(
+                            height: size.height * 0.22,
+                          ),
+                          buildSearch(),
+                          const SizedBox(height: 70),
+                          if (inProgress)
+                            const Center(child: CircularProgressIndicator())
+                          else
+                            buildWeatherData(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Padding topBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HelpScreen(),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: BorderRadius.circular(9)),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.blue[200],
+                borderRadius: BorderRadius.circular(9)),
+            child: const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Icon(
+                Icons.menu,
+                color: Colors.black,
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
 
   Widget buildSearch() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: SearchBar(
-            hintText: "Search any location",
-            controller: _textEditingController,
-            onChanged: (value) {
-              setState(() {
-                locationName = value;
-                isLocationEmpty = value.isEmpty;
-              });
-            },
-          ),
+        SearchBar(
+          elevation: const MaterialStatePropertyAll(1.2),
+          backgroundColor: const MaterialStatePropertyAll(Colors.white),
+          trailing: const [
+            Icon(Icons.search),
+            SizedBox(
+              width: 10,
+            )
+          ],
+          hintText: "Search any location",
+          controller: _textEditingController,
+          onChanged: (value) {
+            setState(() {
+              locationName = value;
+              isLocationEmpty = value.isEmpty;
+            });
+          },
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(15.0),
           child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[200]),
             onPressed: () {
               if (!isLocationEmpty) {
                 _saveLocation(locationName);
@@ -136,8 +220,10 @@ class _HomeScreenState extends State<Homepage> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Text(
                 isLocationEmpty ? "Save" : "Update",
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black),
               ),
             ),
           ),
@@ -147,109 +233,87 @@ class _HomeScreenState extends State<Homepage> {
   }
 
   Widget buildWeatherData() {
+    String formattedDate =
+        DateFormat('EEEE d, MMMM yyy').format(DateTime.now());
     if (response == null) {
-      return Text(message);
+      return Text(
+        message,
+        textAlign: TextAlign.center,
+        
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.red,
+        ),
+      );
     } else {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Icon(
-                Icons.location_on,
-                size: 40,
-                color: Colors.blue,
-              ),
-              Text(
-                response!.location?.name ?? "",
-                style: const TextStyle(
-                  fontSize: 35,
-                  fontWeight: FontWeight.w300,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.location_on,
+                  size: 32,
+                  color: Colors.blue,
                 ),
-              ),
-              Expanded(
-                child: Text(
-                  response!.location?.country ?? "",
+                Text(
+                  response!.location?.name ?? "",
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "${response!.current?.tempC.toString() ?? ""} °c",
-                  style: const TextStyle(
-                    fontSize: 60,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  (response!.current?.condition?.text.toString() ?? ""),
-                  style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 30,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Text(
+                  response!.location?.country ?? "",
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
           ),
+          Text(
+            formattedDate,
+            style: const TextStyle(
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 25),
           Center(
             child: SizedBox(
               height: 200,
               child: Image.network(
                 "https:${response!.current?.condition?.icon}"
-                    .replaceAll("64x64", "128x128"),
-                scale: 0.7,
+                    .replaceAll("128x64", "128x128"),
+                scale: 0.1,
               ),
+            ),
+          ),
+          // const SizedBox(height: 25),
+          Text(
+            "${response!.current?.tempC.toString() ?? ""} °c",
+            style: const TextStyle(
+              fontSize: 60,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            (response!.current?.condition?.text.toString() ?? ""),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
       );
     }
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  final String hintText;
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-
-  const SearchBar({
-    super.key,
-    required this.hintText,
-    required this.controller,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 2,
-      color: Colors.grey[100],
-      borderRadius: BorderRadius.circular(20),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10),
-        child: TextField(
-          controller: controller,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            hintText: hintText,
-            border: InputBorder.none,
-            suffixIcon: const Icon(Icons.search),
-          ),
-        ),
-      ),
-    );
   }
 }
